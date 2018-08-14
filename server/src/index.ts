@@ -5,6 +5,8 @@ const cors = require('cors')
 const path = require('path')
 const request = require('request')
 const printLog = require('chalk-printer')
+const logFile = require('nlogj')
+logFile.setLogName('ntrade.log').clearLog()
 const app = express()
 const log = console.log
 var port = process.env.PORT || 4000
@@ -28,7 +30,7 @@ app.get('/', function(req, res) {
 })
 
 app.listen(port, function() {
-  log('Server listening at port %d', port)
+  printLog.ok('Server listening at port %d', port)
 })
 
 let WebSocketClient = require('websocket').client
@@ -101,6 +103,8 @@ function checking() {
         let maxValue = Math.max(...volArr)
         if (maxValue < 4 * avg && currentVol > 7 * prevVol) {
           //trigger
+          let dataLog = `MaxValue: ${maxValue} - MaxValue: ${maxValue} - MaxValue: ${maxValue}`
+          logFile.log(dataLog)
           printLog.ok('OK')
         } else {
           printLog.trace('Normal')
