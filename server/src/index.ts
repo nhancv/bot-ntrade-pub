@@ -111,6 +111,8 @@ function checking() {
           } else {
             printLog.trace('Normal')
           }
+        } else {
+          printLog.trace('Red candle')
         }
       } else {
         printLog.log('Data must be Array type')
