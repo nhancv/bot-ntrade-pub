@@ -59,7 +59,7 @@ client.on('connect', function(connection) {
   })
 })
 
-let symbol: string = 'keybtc'
+let symbol: string = 'wanbtc'
 let durTime: string = '5m'
 let safeRange: number = 26 //include current
 
