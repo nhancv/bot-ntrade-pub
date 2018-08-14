@@ -83,8 +83,8 @@ function fetchKLineVolume(pair: string = symbol) {
 /*************
  * Logic check unnormal signal.
  * Check 24 candle (not include current)
- * X[23..0] Current
- * If current > 7X[0] && All X[23..1] <2X[0]
+ * X[23..0] Current is green candle
+ * If current > 7X[0] && max(X[23..1]) < 4 * avg(X[23..1])
  */
 function checking() {
   printLog.trace('Checking...')
@@ -93,26 +93,31 @@ function checking() {
       if (Array.isArray(value) && value.length) {
         let volArr = value.map(v => parseFloat(v[5])) as Array<number>
         let currentVol = volArr[volArr.length - 2]
-        let prevVol = volArr[volArr.length - 3]
-  
-        volArr.splice(-1, 3)
-        let sum = volArr.reduce(function(a, b) {
-          return a + b
-        })
-        let avg = sum / volArr.length
-        let maxValue = Math.max(...volArr)
-        if (maxValue < 4 * avg && currentVol > 7 * prevVol) {
-          //trigger
-          let dataLog = `MaxValue: ${maxValue} - MaxValue: ${maxValue} - MaxValue: ${maxValue}`
-          logFile.log(dataLog)
-          printLog.ok('OK')
-        } else {
-          printLog.trace('Normal')
+        let currentOpen = parseFloat(value[volArr.length - 2][1])
+        let currentClose = parseFloat(value[volArr.length - 2][4])
+        if (currentOpen < currentClose) {
+          let prevVol = volArr[volArr.length - 3]
+          volArr.splice(-1, 3)
+          let sum = volArr.reduce(function(a, b) {
+            return a + b
+          })
+          let avg = sum / volArr.length
+          let maxValue = Math.max(...volArr)
+          if (maxValue < 4 * avg && currentVol > 7 * prevVol) {
+            //trigger
+            let dataLog = `MaxValue: ${maxValue} - MaxValue: ${maxValue} - MaxValue: ${maxValue}`
+            logFile.log(dataLog)
+            printLog.ok('OK')
+          } else {
+            printLog.trace('Normal')
+          }
         }
       } else {
         printLog.log('Data must be Array type')
       }
     },
-    error => {printLog.error(error.message)}
-  )  
+    error => {
+      printLog.error(error.message)
+    }
+  )
 }
