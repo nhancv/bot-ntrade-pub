@@ -128,7 +128,7 @@ function checking() {
         let currentTime = value[volArr.length - 2][0]
         let currentOpen = parseFloat(value[volArr.length - 2][1])
         let currentClose = parseFloat(value[volArr.length - 2][4])
-        if (currentOpen < currentClose) {
+        if (currentOpen <= currentClose) {
           let prevVol = volArr[volArr.length - 3]
           volArr.splice(-1, 3)
           let sum = volArr.reduce((a, b) => a + b)
@@ -155,3 +155,5 @@ function checking() {
     }
   )
 }
+
+checking()
