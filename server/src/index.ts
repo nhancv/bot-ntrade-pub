@@ -1,10 +1,10 @@
-import { resolve } from 'dns'
-
 const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const path = require('path')
+const request = require('request')
+const printLog = require('chalk-printer')
 const app = express()
 const log = console.log
 var port = process.env.PORT || 4000
@@ -31,46 +31,84 @@ app.listen(port, function() {
   log('Server listening at port %d', port)
 })
 
-var WebSocketClient = require('websocket').client
-
-var client = new WebSocketClient()
+let WebSocketClient = require('websocket').client
+let client = new WebSocketClient()
 
 client.on('connectFailed', function(error) {
-  console.log('Connect Error: ' + error.toString())
+  printLog.error('Connect Error: ' + error.toString())
 })
 
 client.on('connect', function(connection) {
-  console.log('WebSocket Client Connected')
+  printLog.ok('WebSocket Client Connected')
   connection.on('error', function(error) {
-    console.log('Connection Error: ' + error.toString())
+    printLog.error('Connection Error: ' + error.toString())
   })
   connection.on('close', function() {
-    console.log('Connection Closed')
+    printLog.warn('Connection Closed')
   })
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
-      console.log("Received: '" + message.utf8Data + "'")
+      // log("Received: '" + message.utf8Data + "'")
+      let body = JSON.parse(message.utf8Data)
+      if (body.k.x === true) {
+        checking()
+      }
     }
   })
 })
 
-let symbol: string = "bnbbtc"
-let durTime: string = "5m"
-let safeRange: number = 24
+let symbol: string = 'bnbbtc'
+let durTime: string = '5m'
+let safeRange: number = 26 //include current
 
 client.connect(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${durTime}`)
 
-const request = require('request')
 function fetchKLineVolume(pair: string = symbol) {
   return new Promise((resolve, reject) => {
-    request(`https://api.binance.com/api/v1/klines?symbol=${pair.toUpperCase()}&interval=${durTime}&limit=${safeRange}`, (error, response, body) => {
-      if (error) {
-        log("Error", error.message)
-        reject(error)
-      } else {
-        log("Body", body)
-        resolve(body)
+    request(
+      `https://api.binance.com/api/v1/klines?symbol=${pair.toUpperCase()}&interval=${durTime}&limit=${safeRange}`,
+      (error, response, body) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(JSON.parse(body))
+        }
       }
-    })
+    )
   })
+}
+
+/*************
+ * Logic check unnormal signal.
+ * Check 24 candle (not include current)
+ * X[23..0] Current
+ * If current > 7X[0] && All X[23..1] <2X[0]
+ */
+function checking() {
+  printLog.trace('Checking...')
+  fetchKLineVolume().then(
+    value => {
+      if (Array.isArray(value) && value.length) {
+        let volArr = value.map(v => parseFloat(v[5])) as Array<number>
+        let currentVol = volArr[volArr.length - 2]
+        let prevVol = volArr[volArr.length - 3]
+  
+        volArr.splice(-1, 3)
+        let sum = volArr.reduce(function(a, b) {
+          return a + b
+        })
+        let avg = sum / volArr.length
+        let maxValue = Math.max(...volArr)
+        if (maxValue < 4 * avg && currentVol > 7 * prevVol) {
+          //trigger
+          printLog.ok('OK')
+        } else {
+          printLog.trace('Normal')
+        }
+      } else {
+        printLog.log('Data must be Array type')
+      }
+    },
+    error => {printLog.error(error.message)}
+  )  
 }
