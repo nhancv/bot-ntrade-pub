@@ -59,7 +59,7 @@ client.on('connect', function(connection) {
   })
 })
 
-let symbol: string = 'wanbtc'
+let symbol: string = 'xzcbtc'
 let durTime: string = '5m'
 let safeRange: number = 26 //include current
 
@@ -116,7 +116,7 @@ function precisionFloorRound(number, precision) {
  * Logic check unnormal signal.
  * Check 24 candle (not include current)
  * X[23..0] Current is green candle
- * If current > 7X[0] && max(X[23..1]) < 4 * avg(X[23..1])
+ * If current > 20X[0] && max(X[23..1]) < 4 * avg(X[23..1])
  */
 function checking() {
   printLog.trace('Checking...')
@@ -136,7 +136,7 @@ function checking() {
           let maxValue = Math.max(...volArr)
           let dataLog = `Vol: ${currentVol} - Avg: ${avg} - Max: ${maxValue}`
           printLog.log(dataLog)
-          if (maxValue < 4 * avg && currentVol > 7 * prevVol) {
+          if (maxValue < 4 * avg && currentVol > 20 * prevVol) {
             //trigger
             logFile.log(dataLog + `\r\nOpen: ${currentOpen} - Close: ${currentClose} - Time: ${currentTime}`)
             printLog.ok('OK')
@@ -155,5 +155,3 @@ function checking() {
     }
   )
 }
-
-checking()
