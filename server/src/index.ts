@@ -1,3 +1,5 @@
+import { resolve } from 'dns'
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
@@ -52,6 +54,23 @@ client.on('connect', function(connection) {
   })
 })
 
-client.connect(
-  'wss://stream.binance.com:9443/ws/bnbbtc@kline_5m'
-)
+let symbol: string = "bnbbtc"
+let durTime: string = "5m"
+let safeRange: number = 24
+
+client.connect(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${durTime}`)
+
+const request = require('request')
+function fetchKLineVolume(pair: string = symbol) {
+  return new Promise((resolve, reject) => {
+    request(`https://api.binance.com/api/v1/klines?symbol=${pair.toUpperCase()}&interval=${durTime}&limit=${safeRange}`, (error, response, body) => {
+      if (error) {
+        log("Error", error.message)
+        reject(error)
+      } else {
+        log("Body", body)
+        resolve(body)
+      }
+    })
+  })
+}

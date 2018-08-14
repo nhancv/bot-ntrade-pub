@@ -30,7 +30,7 @@
     "express": "^4.16.3",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "request": "^2.87.0",
+    "request": "^2.88.0",
     "websocket": "^1.0.26"
   },
   "devDependencies": {
