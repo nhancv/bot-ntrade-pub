@@ -93,20 +93,22 @@ function checking() {
       if (Array.isArray(value) && value.length) {
         let volArr = value.map(v => parseFloat(v[5])) as Array<number>
         let currentVol = volArr[volArr.length - 2]
+        let currentTime = value[volArr.length - 2][0]
         let currentOpen = parseFloat(value[volArr.length - 2][1])
         let currentClose = parseFloat(value[volArr.length - 2][4])
         if (currentOpen < currentClose) {
           let prevVol = volArr[volArr.length - 3]
           volArr.splice(-1, 3)
-          let sum = volArr.reduce(function(a, b) {
-            return a + b
-          })
+          let sum = volArr.reduce((a, b) => a + b)
           let avg = sum / volArr.length
           let maxValue = Math.max(...volArr)
+          let dataLog = `Vol: ${currentVol} - Avg: ${avg} - Max: ${maxValue}`
+          printLog.log(dataLog)
           if (maxValue < 4 * avg && currentVol > 7 * prevVol) {
             //trigger
-            let dataLog = `MaxValue: ${maxValue} - MaxValue: ${maxValue} - MaxValue: ${maxValue}`
-            logFile.log(dataLog)
+            logFile.log(dataLog 
+            + `\r\nOpen: ${currentOpen} - Close: ${currentClose} - Time: ${currentTime}`
+            )
             printLog.ok('OK')
           } else {
             printLog.trace('Normal')
