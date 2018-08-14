@@ -59,7 +59,7 @@ client.on('connect', function(connection) {
   })
 })
 
-let symbol: string = 'bnbbtc'
+let symbol: string = 'keybtc'
 let durTime: string = '5m'
 let safeRange: number = 26 //include current
 
