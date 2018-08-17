@@ -1,4 +1,6 @@
-# Treact Template
+# NTrade [Stopping]
+
+NTrade public had been stopped and move to private development. 
 
 ## Tech stack
 ### Server
@@ -40,3 +42,6 @@ npm run build
 ## USAGE
 
 Create new `./server/src/secret.json` file from `secret.temp.json` template.
+
+
+
