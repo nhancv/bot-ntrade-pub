@@ -13,6 +13,6 @@
   "typescript.tsdk": "./node_modules/typescript/lib",
   "typescript.referencesCodeLens.enabled": false,
   "typescript.implementationsCodeLens.enabled": false,
-  "prettier.semi": false,
+  "prettier.semi": true,
   "prettier.singleQuote": true
 }
