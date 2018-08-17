@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer'
 
 export default class Mail {
-  toArr: string[] = ['nhancv92@gmail.com']
+  toArr: string[] = require('./secret.json').recipients
   transporter
   constructor(email, password) {
     this.transporter = nodemailer.createTransport({
@@ -13,11 +13,11 @@ export default class Mail {
     })
   }
 
-  async sendMail(timeStr, content) {
+  async sendMail(symbol, timeStr, content) {
     let mailOptions = {
       from: '"NTrade 👻" <ntrade@gmail.com>',
       to: this.toArr.toString(),
-      subject: `[NTrade] Hight signal at ${timeStr}`,
+      subject: `[NTrade: ${symbol.toUpperCase()}] Hight signal at ${timeStr}`,
       text: content
     }
     // send mail with defined transport object

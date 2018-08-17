@@ -62,12 +62,12 @@ client.on('connect', function(connection) {
   })
 })
 
-const {email, password} = require('./secret.json')
+const { email, password } = require('./secret.json')
 const mail = new Mail(email, password)
 
-let symbol: string = 'btcusdt'
-let durTime: string = '1m'
-let safeRange: number = 5
+const symbol: string = 'btcusdt'
+const durTime: string = '1m'
+const safeRange: number = 5
 
 client.connect(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${durTime}`)
 
@@ -89,12 +89,11 @@ client.connect(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_$
     "17928899.62484339" // Ignore.
   ]
 ]
- * @param pair 
  */
-function fetchKLineVolume(pair: string = symbol) {
+function fetchKLineVolume() {
   return new Promise((resolve, reject) => {
     request(
-      `https://api.binance.com/api/v1/klines?symbol=${pair.toUpperCase()}&interval=${durTime}&limit=${safeRange + 2}`,
+      `https://api.binance.com/api/v1/klines?symbol=${symbol.toUpperCase()}&interval=${durTime}&limit=${safeRange + 2}`,
       (error, response, body) => {
         if (error) {
           reject(error)
@@ -145,11 +144,9 @@ function checking() {
           if (maxValue < 4 * avg && currentVol > 6 * prevVol) {
             //trigger
             let timeStr = moment(currentTime).format()
-            logFile.log(
-              dataLog = dataLog + `\r\nOpen: ${currentOpen} - Close: ${currentClose} - Time: ${timeStr}`
-            )
+            logFile.log((dataLog = dataLog + `\r\nOpen: ${currentOpen} - Close: ${currentClose} - Time: ${timeStr}`))
             printLog.ok('OK')
-            mail.sendMail(timeStr, dataLog);
+            mail.sendMail(symbol, timeStr, dataLog)
           } else {
             printLog.trace('Normal')
           }
