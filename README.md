@@ -37,3 +37,6 @@ cd frontend
 npm run build
 ```
 
+## USAGE
+
+Create new `./server/src/secret.json` file from `secret.temp.json` template.

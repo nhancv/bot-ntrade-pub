@@ -2,3 +2,4 @@ node_modules
 .idea
 .apikey*.json
 *.log
+secret.json
