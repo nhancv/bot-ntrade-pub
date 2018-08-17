@@ -65,7 +65,7 @@ client.on('connect', function(connection) {
 const {email, password} = require('./secret.json')
 const mail = new Mail(email, password)
 
-let symbol: string = 'elfbtc'
+let symbol: string = 'btcusdt'
 let durTime: string = '1m'
 let safeRange: number = 5
 
@@ -146,7 +146,7 @@ function checking() {
             //trigger
             let timeStr = moment(currentTime).format()
             logFile.log(
-              dataLog + `\r\nOpen: ${currentOpen} - Close: ${currentClose} - Time: ${timeStr}`
+              dataLog = dataLog + `\r\nOpen: ${currentOpen} - Close: ${currentClose} - Time: ${timeStr}`
             )
             printLog.ok('OK')
             mail.sendMail(timeStr, dataLog);
