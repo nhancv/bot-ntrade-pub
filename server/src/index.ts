@@ -50,6 +50,7 @@ client.on('connect', function(connection) {
   })
   connection.on('close', function() {
     printLog.warn('Connection Closed')
+    //Need auto reconnect
   })
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
@@ -65,7 +66,7 @@ client.on('connect', function(connection) {
 const { email, password } = require('./secret.json')
 const mail = new Mail(email, password)
 
-const symbol: string = 'btcusdt'
+const symbol: string = 'tusdbtc'
 const durTime: string = '1m'
 const safeRange: number = 5
 
