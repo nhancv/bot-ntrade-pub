@@ -1,11 +1,13 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const cookieParser = require('cookie-parser')
-const cors = require('cors')
-const path = require('path')
-const request = require('request')
-const printLog = require('chalk-printer')
-const logFile = require('nlogj')
+import express from 'express'
+import moment from 'moment'
+import bodyParser from 'body-parser'
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
+import path from 'path'
+import request from 'request'
+import printLog from 'chalk-printer'
+import logFile from 'nlogj'
+
 logFile.setLogName('ntrade.log').clearLog()
 const app = express()
 const log = console.log
@@ -59,9 +61,9 @@ client.on('connect', function(connection) {
   })
 })
 
-let symbol: string = 'xzcbtc'
-let durTime: string = '5m'
-let safeRange: number = 26 //include current
+let symbol: string = 'elfbtc'
+let durTime: string = '1m'
+let safeRange: number = 5
 
 client.connect(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_${durTime}`)
 
@@ -88,7 +90,7 @@ client.connect(`wss://stream.binance.com:9443/ws/${symbol.toLowerCase()}@kline_$
 function fetchKLineVolume(pair: string = symbol) {
   return new Promise((resolve, reject) => {
     request(
-      `https://api.binance.com/api/v1/klines?symbol=${pair.toUpperCase()}&interval=${durTime}&limit=${safeRange}`,
+      `https://api.binance.com/api/v1/klines?symbol=${pair.toUpperCase()}&interval=${durTime}&limit=${safeRange + 2}`,
       (error, response, body) => {
         if (error) {
           reject(error)
@@ -114,9 +116,9 @@ function precisionFloorRound(number, precision) {
 
 /*************
  * Logic check unnormal signal.
- * Check 24 candle (not include current)
- * X[23..0] Current is green candle
- * If current > 20X[0] && max(X[23..1]) < 4 * avg(X[23..1])
+ * Check 10 candle (not include current)
+ * X[9..0] Current is green candle
+ * If current > 6 * X[0] && max(X[9..1]) < 4 * avg(X[9..1])
  */
 function checking() {
   printLog.trace('Checking...')
@@ -136,9 +138,11 @@ function checking() {
           let maxValue = Math.max(...volArr)
           let dataLog = `Vol: ${currentVol} - Avg: ${avg} - Max: ${maxValue}`
           printLog.log(dataLog)
-          if (maxValue < 4 * avg && currentVol > 20 * prevVol) {
+          if (maxValue < 4 * avg && currentVol > 6 * prevVol) {
             //trigger
-            logFile.log(dataLog + `\r\nOpen: ${currentOpen} - Close: ${currentClose} - Time: ${currentTime}`)
+            logFile.log(
+              dataLog + `\r\nOpen: ${currentOpen} - Close: ${currentClose} - Time: ${moment(currentTime).format()}`
+            )
             printLog.ok('OK')
           } else {
             printLog.trace('Normal')
